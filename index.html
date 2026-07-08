@@ -649,35 +649,6 @@ input{ font-family:inherit; }
 
 /* ============ SETTINGS SHEET ============ */
 .settings-section{ margin-bottom:24px; }
-
-.settings-nav-row{
-  display:flex;
-  align-items:stretch;
-  border:1px solid var(--border-soft);
-  border-radius:var(--radius-sm);
-  overflow:hidden;
-  margin-top:4px;
-}
-
-.settings-nav-link{
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  padding:14px 8px;
-  font-size:13px;
-  font-weight:600;
-  color:var(--text-dim);
-  transition:background .15s ease, color .15s ease;
-}
-.settings-nav-link svg{ width:15px; height:15px; flex-shrink:0; }
-.settings-nav-link:hover{ background:var(--surface); color:var(--accent); }
-
-.settings-nav-divider{
-  width:1px;
-  background:var(--border-soft);
-}
 .settings-row{
   display:flex;
   align-items:center;
@@ -974,18 +945,6 @@ input{ font-family:inherit; }
       <div class="settings-sub" id="about-total">—</div>
     </div>
   </div>
-
-  <div class="settings-nav-row">
-    <button class="settings-nav-link" id="settings-goto-qod">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36 6.36-.7-.7M6.34 6.34l-.7-.7m12.72 0-.7.7M6.34 17.66l-.7.7M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg>
-      Quote of the day
-    </button>
-    <div class="settings-nav-divider"></div>
-    <button class="settings-nav-link" id="settings-goto-all">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
-      View all quotes
-    </button>
-  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1278,28 +1237,29 @@ function renderDetail(idx){
     wrap.innerHTML = `<div style="text-align:center;">
       <div class="qod-eyebrow">Not found</div>
       <p style="color:var(--text-dim);font-size:15px;line-height:1.6;">There's no quote with index <strong>${idx}</strong>. It may have been removed or the link is out of date.</p>
-      <div class="qod-footer"><button class="link-btn" id="detail-goall">View all quotes</button></div>
+      <div class="qod-footer">
+        <button class="link-btn" id="detail-goqod">Quote of the day</button>
+        <button class="link-btn" id="detail-goall">View all quotes</button>
+        <button class="settings-trigger" id="detail-notfound-settings">Settings</button>
+      </div>
     </div>`;
     $('#detail-index').textContent = '';
+    $('#detail-goqod').addEventListener('click', () => navigateTo('qod'));
     $('#detail-goall').addEventListener('click', () => navigateTo('all'));
+    $('#detail-notfound-settings').addEventListener('click', openSettings);
     return;
   }
   $('#detail-index').textContent = '#' + idx;
   wrap.innerHTML = `<div class="quote-card">${renderQuoteCard(q)}</div>
-    <div class="settings-nav-row" style="max-width:340px; margin-top:36px;">
-      <button class="settings-nav-link" id="detail-goto-qod">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.36 6.36-.7-.7M6.34 6.34l-.7-.7m12.72 0-.7.7M6.34 17.66l-.7.7M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg>
-        Quote of the day
-      </button>
-      <div class="settings-nav-divider"></div>
-      <button class="settings-nav-link" id="detail-goto-all">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
-        View all quotes
-      </button>
+    <div class="qod-footer">
+      <button class="link-btn" id="detail-goto-qod">Quote of the day</button>
+      <button class="link-btn" id="detail-goto-all">View all quotes</button>
+      <button class="settings-trigger" id="detail-settings-link">Settings</button>
     </div>`;
   wireCardActions(wrap, q);
   $('#detail-goto-qod').addEventListener('click', () => navigateTo('qod'));
   $('#detail-goto-all').addEventListener('click', () => navigateTo('all'));
+  $('#detail-settings-link').addEventListener('click', openSettings);
 }
 
 /* ---------------- Sort sheet ---------------- */
@@ -1591,14 +1551,6 @@ function initApp(){
   });
 
   $('#settings-close').addEventListener('click', () => closeSheet('settings-sheet', 'settings-backdrop'));
-  $('#settings-goto-qod').addEventListener('click', () => {
-    closeSheet('settings-sheet', 'settings-backdrop');
-    navigateTo('qod');
-  });
-  $('#settings-goto-all').addEventListener('click', () => {
-    closeSheet('settings-sheet', 'settings-backdrop');
-    navigateTo('all');
-  });
   $('#settings-backdrop').addEventListener('click', () => closeSheet('settings-sheet', 'settings-backdrop'));
   $('#theme-seg').querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
